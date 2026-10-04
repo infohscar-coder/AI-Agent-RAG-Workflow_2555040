@@ -1,0 +1,210 @@
+{
+  "name": "Demo: RAG in n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "미래 AI 기술 관련 문서(미래AI기술.pdf)를 📚 Load Data 흐름을 통해 벡터 데이터베이스에 로드한 후, 🐕 Retriever 흐름을 통해 정확한 챗봇 컨텍스트로 활용할 수 있습니다.\n\n빠른 시작 가이드\n\nExecute Workflow 버튼을 클릭하여 📚 Load Data 흐름을 실행합니다.\n\nOpen Chat 버튼을 클릭하여 🐕 Retriever 흐름을 실행한 뒤, 미래AI기술.pdf 문서 내용과 관련된 질문을 입력하세요.",
+        "height": 300,
+        "width": 440,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        -416
+      ],
+      "typeVersion": 1,
+      "id": "0d07742b-0b36-4c2e-990c-266cbe6e2d4d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### 📚 Load Data Flow",
+        "height": 460,
+        "width": 1148,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        -64
+      ],
+      "typeVersion": 1,
+      "id": "d19d04f3-5231-4e47-bed7-9f24a4a8f582",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "value": "vector_store_key",
+          "mode": "list"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        16
+      ],
+      "id": "bf50a11f-ca6a-4e04-a6d2-42fee272b260",
+      "name": "Insert Data to Store"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "17VT3dAT3y6HPrG3m8Ru3Ast_9VWyjpaS",
+          "mode": "list",
+          "cachedResultName": "미래AI기술.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/17VT3dAT3y6HPrG3m8Ru3Ast_9VWyjpaS/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -400,
+        16
+      ],
+      "id": "334ec3c3-f831-4358-9efa-c1a58348df1a",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1IGrCEStHdV3xads",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "a15da33c-8047-4e25-8657-a9d2bb923e67",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        16
+      ],
+      "id": "33ce651d-a389-477e-b113-31452b8b15cd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        208
+      ],
+      "id": "188d8a5b-99d1-4ab3-8d23-5588ce39138a",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MgNWv7uksPN7S4KV",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        224
+      ],
+      "id": "f49a54a0-d3cc-4e39-a733-a3ec34744f38",
+      "name": "Default Data Loader"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Insert Data to Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Insert Data to Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Insert Data to Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d1390363-79c0-4e61-9805-e40284afd793",
+  "meta": {
+    "templateId": "rag-starter-template",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c5674022872009769c8b83e3189e707e15b254c1b9e48d6b8e871f168c7daed1"
+  },
+  "nodeGroups": [],
+  "id": "100lY9iOg4AMPjS1",
+  "tags": []
+}
